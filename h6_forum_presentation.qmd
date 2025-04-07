@@ -1,0 +1,63 @@
+---
+title: "HSMA 6 April 2025 Project Forum - Tips and Tricks"
+author:
+    name: Dr Dan Chalk, Sammi Rosser
+    affiliation: Health Service Modelling Associates Programme
+format:
+  revealjs:
+    output-file: index.html
+    embed-resources: true
+    view-distance: 100
+    height: 800
+    width: 1250
+    transition: slide
+    plotly-connected: true
+    background-transition: fade
+    theme: [default, custom.scss]
+    title-slide-attributes:
+        data-background-image: banner.png
+    include-in-header:
+      - text: |
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link href='https://fonts.googleapis.com/css?family=Lexend' rel='stylesheet'>
+
+---
+
+# Survey - Phase 2 so Far
+
+
+# Working on your DES Projects
+
+
+## Getting distributions from real data
+
+
+
+## An Intro to Process Analytics with BupaR - and why it can help your DES project!
+
+
+
+## Verification and Validation of DES Models
+
+
+
+
+
+# A sneak peak - an alternative approach to boundary optimization
+
+
+
+# Notebook LM
+
+## Why might NotebookLM be useful to you?
+
+
+
+
+
+# Cool Finds - New Streamlit Features
+
+## Streamlit 1.44
+
+![](assets/2025-04-07-16-50-40.png)
+
+[Version 1.44 Release Notes](https://docs.streamlit.io/develop/quick-reference/release-notes/2025#version-1440)

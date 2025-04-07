@@ -1,0 +1,7 @@
+project:
+  title: "h6_forum_presentation"
+  output-dir: docs
+
+format:
+  html:
+    embed-resources: true
