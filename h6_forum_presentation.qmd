@@ -41,8 +41,13 @@ Pop me a message if you can't make those times and we can work something out.
 
 Notebook LM is a Google product that allows you to pass in specfic sources that will be used by a generative AI model.
 
-You can feed it a range of sources, including google slides, Youtube vdeos, and webpages.
+You can feed it a range of sources, including
 
+- Google slides
+- Youtube videos
+- webpages
+
+(Thanks to Joel for originally making me aware of this tool)
 
 ## Why might NotebookLM be useful to you?
 
@@ -55,21 +60,33 @@ Because it can be trained on specific sources, you can use it to remind yourself
 
 Notebook LM has the really nice feature of actually referring back to the source it's used
 
+But in code, that means you get the sources appearing in `[]` in a way that would break the code...
+
 ![](assets/2025-04-28-21-05-55.png)
 
 ## Other Features
 
 The 'deep dive' feature is a way to get a good summary of complex information like scientific papers.
 
+It generates a podcast!
+
 ![](assets/2025-04-28-21-04-38.png)
 
 ## Things to note
 
+:::{.incremental}
+
 - Don't put anything private/sensitive in there!
+  - They say it's not reviewed by humans or used to train models... but still...
 
 - You can't share your notebook if you don't have a paid Google AI plan (which is a shame if you're working in a team)
+  - it will look like sharing is available, but it doesn't work...
 
+- Websites (like the DES book) need to be added page-by-page
+  - quite tedious!
+  - this also means you might quickly hit the free plan limit of 50 sources per notebook
 
+:::
 
 # Automated Documentation Generation with Generative AI
 
@@ -167,13 +184,140 @@ I'll put together a quick guide on the 'how' in the next few days, but if you're
 
 # Work In Progress - an alternative approach to boundary optimization
 
+## Why is Boundary Optimization more complex?
+
+- Compared to sites, where you can have any combination... (though they won't all be sensible)
+
+![](assets/2025-04-28-21-29-39.png)
+
+## Boundaries have to make sense...
+
+![](assets/2025-04-28-21-30-49.png)
+
+So how would we build up a new candidate combination?
+
+## Let's play a game
+
+![](assets/walk-1.gif)
+
+## Let's add more players
+
+![](assets/walk_2.gif)
+
+## How do we do this?
+
+LSOAs (or any other geography) have a concept of neighbours (something sharing a border)
+
+![](assets/cell-15-output-1-1.png)
+
+Here, we start with a territory that's pretty central in the existing territories
+
+- we could choose a random cell from the existing territory
+- or completely at random
+- or we could have a different number of players to our existing territory
+
+## The game
+
+On each step, it
+
+:::{.incremental}
+
+- rolls a dice to decide if it will take part in this round
+- chooses a neighbour at random from the list of neighbours
+  - if no-one already owns the neighbour, it takes ownership
+  - if someone does already own it, it takes no territory on that turn
+
+This randomness ensures we don't end up with every player owning the same number of units of territory each time.
+
+:::
+
+![](assets/2025-04-28-21-41-27.png)
 
 
+## Assessing the solutions
+
+We can then generate **multiple** allocations, which will all (probably) differ.
+
+We can then **score** each solution on a metric - here, we're trying to minimize the difference in received calls across each region, so we work out the average across all regions and then work out the **absolute** difference.
+
+The closer the resulting value is to zero, the better the solution is.
+
+![](assets/2025-04-28-21-43-49.png)
+
+## Making the solutions better
+
+Rather than just randomly generating thousands of candidate solutions, we may move to a better solution faster by varying the best random solutions.
+
+With some more boundary logic, we can create new possible solutions that are a variation on our best solution from the previous step.
+
+![](assets/2025-04-28-21-49-15.png)
+
+## Evaluating our evolution
+
+We then evaluate again.
+
+![](assets/2025-04-28-21-49-59.png)
+
+## And on and on!
+
+And - in theory - we'd keep going for a set number of generations or a defined amount of compute time - and see how good a solution we can come up with!
+
+## Why do I think this is worth doing?
+
+:::{.incremental}
+- It's a relatively intuitive method compared to some of the other theoretical approaches (I think...?)
+- The resulting boundaries can be made to follow some sort of recognised/logical existing boundaries, which can be practical in reality
+:::
+
+## Current Issues
+
+:::{.incremental}
+- Slow...
+- Doesn't have an end-to-end process (yet)
+- Some of the generated territories are impractical in reality (e.g. long and thin protrusions)
+- Shouldn't this already be a solved problem...?
+:::
+
+## Planned next steps
+
+:::{.incremental}
+- Make it more efficient
+- Implement multi-objective optimisation
+  - in reality, you might want to optimize on a balance of multiple things, like
+    - average travel time
+    - max travel time
+    - average deprivation scores(?)
+    - how 'compact' the resulting territory is
+- Make it into a library?
+- Find people who might have a problem we can test it out on!
+:::
 
 # New Streamlit Features
 
-## Streamlit 1.44
+## Streamlit 1.44 adds more theming options
 
 ![](assets/2025-04-07-16-50-40.png)
 
 [Version 1.44 Release Notes](https://docs.streamlit.io/develop/quick-reference/release-notes/2025#version-1440)
+
+## What can you change now?
+
+A lot more than before!
+
+![](assets/2025-04-28-21-23-57.png)
+
+[](https://docs.streamlit.io/develop/api-reference/configuration/config.toml#theme)
+
+## Custom Fonts
+
+Custom fonts appear to be supported via downloaded font files
+
+![](assets/2025-04-28-21-24-49.png)
+
+## Sidebar Theme
+
+The sidebar theme is fully customizable too.
+
+![](assets/2025-04-28-21-25-28.png)
+
+[](https://docs.streamlit.io/develop/api-reference/configuration/config.toml#sidebar-theme)
