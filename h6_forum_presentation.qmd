@@ -1,8 +1,11 @@
 ---
 title: "HSMA 6 April 2025 Project Forum - Tips, Tricks and Updates"
 author:
-    name: Dr Dan Chalk, Sammi Rosser
+    name: Sammi Rosser
     affiliation: Health Service Modelling Associates Programme
+execute:
+  eval: false
+  echo: true
 format:
   revealjs:
     output-file: index.html
@@ -33,6 +36,8 @@ Slots are available at
 
 Slots are currently available up until the second week of June.
 
+Book via [this link](https://outlook.office.com/bookwithme/user/e31b78e1b3c646b69896c9a1e79d36e6@exeter.ac.uk/meetingtype/9_lnr99Rd0u1I3LaR3gzuw2?anonymous&ep=mlink)
+
 Pop me a message if you can't make those times and we can work something out.
 
 # Useful Tools - Notebook LM
@@ -58,11 +63,27 @@ Because it can be trained on specific sources, you can use it to remind yourself
 
 ## A note about code
 
+:::: {.columns}
+
+::: {.column width='30%'}
+
 Notebook LM has the really nice feature of actually referring back to the source it's used
 
 But in code, that means you get the sources appearing in `[]` in a way that would break the code...
 
+:::
+
+::: {.column width='70%'}
+
 ![](assets/2025-04-28-21-05-55.png)
+
+
+:::
+
+::::
+
+
+
 
 ## Other Features
 
@@ -94,17 +115,21 @@ It generates a podcast!
 
 This repository contains a script to automatically generate documentation from a codebase.
 
-[https://github.com/The-Pocket/PocketFlow-Tutorial-Codebase-Knowledge](https://github.com/The-Pocket/PocketFlow-Tutorial-Codebase-Knowledge]
+[https://github.com/The-Pocket/PocketFlow-Tutorial-Codebase-Knowledge](https://github.com/The-Pocket/PocketFlow-Tutorial-Codebase-Knowledge)
 
 It's designed to write beginner-friendly documentation with loads of analogies and clear breakdowns of what is going on.
 
 ## Why is this useful?
+
+:::{.incremental}
 
 Documentation is the thing no-one wants to do...
 
 And it always goes out of date!
 
 In addition, if you're trying to work with someone else's code, it can be really hard to get your head around how everything is done.
+
+:::
 
 ## Example page
 
@@ -134,18 +159,33 @@ And diagrams...
 
 ## Prompt Editing
 
+:::: {.columns}
+
+::: {.column width='20%'}
+
 Because of the way this code is designed, you can modify the prompt that gets fed in.
 
 It just lives in text in the `nodes.py` file.
 
+
+:::
+
+::: {.column width='80%'}
+
 ![](assets/2025-04-28-20-57-29.png)
+
+
+:::
+
+::::
+
+
 
 ## Custom Documentation
 
 So you can ask it to make the documentation more or less beginner friendly, or add very specific requests.
 
 ![](assets/2025-04-28-20-48-33.png)
-
 
 ## Considerations
 
@@ -161,25 +201,278 @@ Google's most advanced model (`gemini-2.5-pro-exp-03-25`) is currently **free** 
 
 For me, that was enough to generate two sets of documentation per day before hitting the limit.
 
-
 ## Further Info
 
 I'll put together a quick guide on the 'how' in the next few days, but if you're keen to try it out sooner, have a go at following the instructions in the repository readme (and message me if you get stuck).
 
 ![](https://github.com/The-Pocket/PocketFlow-Tutorial-Codebase-Knowledge?tab=readme-ov-file#-getting-started)
 
-# Working on your DES Projects
-
-## Getting distributions from real data
+And have a read of a sample generated here: [https://sammirosser.com/vidigi_autodoc_test/](https://sammirosser.com/vidigi_autodoc_test/)
 
 
-## Event Logging
+# DES Projects - Getting distributions from real data
+
+There's a new chapter in the DES book on getting distributions from real data!
+
+![](assets/2025-04-28-22-41-25.png)
+
+## The fitter package
+
+This covers using the `fitter` package.
+
+Let's assume we start with a dataframe of historical activity times.
+
+![](assets/2025-04-28-22-43-19.png)
+
+## Fitting
+
+You pass in a list of values...
+
+```{python}
+#| eval: false
+from fitter import Fitter
+
+f = Fitter(df["duration"],
+            distributions=distributions_to_scan, # See the chapter for more details
+            timeout=60
+            )
+
+f.fit()
+```
+
+## The summary feature
+
+![](assets/2025-04-28-22-42-49.png)
+
+## The get_best method
+
+We can then apply the 'get_best' method to our object to return
+
+- the best-fitting distribution
+- the parameters for that
+
+```{python}
+nurse_appt_duration_fit = f.get_best()
+
+nurse_appt_duration_fit
+```
+
+![](assets/2025-04-28-23-54-39.png)
+
+And this can be used to then pass into your model.
+
+# DES - Event Logging
+
+There is also a new chapter on [event logging](https://des.hsma.co.uk/event_logging.html).
+
+We will be using the term ‘event logging’ to describe the process of generating a step-by-step log of what happens to each entity as they pass through our system.
+
+The resulting file will be an ‘event log’.
+
+## Why Event Log?
+
+:::{.incremental}
+- Many models have very similar basic steps and structures when you boil it down - so you can start to develop fairly reusable code snippets
+- Saving the event log as a csv or similar means you can develop visuals + metrics without rerunning the model each time
+- Easy to add to
+:::
+
+## My Recommended Event Log Structure
+
+![](assets/2025-04-28-23-00-18.png)
+
+...
+
+![](assets/2025-04-28-23-00-44.png)
+
+## Key Parts of the Event Log
+
+We have several mandatory columns:
+
+:::{.incremental}
+
+**entity_id:** a unique identifider to allow us to follow a given entity through their journey
+
+**event_type:** this column is used to distinguish between three key kinds of events:
+
+  - arrival_departure: an entity first entering the system, or the entity leaving the system
+  - queue: an entity beginning to queue for a resource
+      - this can also be used to just generally record the movement of someone through points of a system that don’t necessarily have a traditional ‘queue’
+  - resource_use: this relates to anything where someone starts or ends their time with a resource in the system
+
+:::
+
+## Key Parts of the Event Log (contd.)
+
+:::{.incremental}
+
+**event:** this column further breaks down what is happening during each event type, such as what stage of the system people are waiting to interact with
+
+**time:** this can be an absolute timestamp in the form of a datetime (e.g. 2027-01-01 23:01:47), or a relative timestamp in time units from the start of the simulation.
+
+**run:** in a multi-run Trial, which run the result came from
+
+:::
+
+## Resource IDs
+
+:::{.incremental}
+
+- An optional but extremely useful part of your event log is a resource_id
+- This allows you to track which resource was being used by a particular entity
+- So if you have five nurses, you know which one they saw - allowing you to look in more depth at resource use, and being valuable for resource utilisation.
+- This is a bit more complex due to not being natively supported by simpy.
+  - But it's covered in the book (with some custom helper functions provided): [](https://des.hsma.co.uk/event_logging.html#logging-resource-ids)
+
+:::
+
+## What Next?
+
+Once you have this log, you can use it for a wide range of visuals
+
+- Process logs (which I'll talk about in a moment)
+- Animated visuals with the vidigi package
+- Various box plots, scatterplots and bar charts to aid with interpretation and validation of your model
 
 
-## An Intro to Process Analytics with BupaR - and why it can help your DES project!
 
+## Considerations
 
-## A Little on Verification and Validation of DES Models
+:::{.callout-note}
+- Not every patient in your simulation will have all steps
+  - how will you handle patients in your log who didn't finish their journey?
+  - how might this misrepresent the situation in some circumstances?
+:::
+
+## More from me
+
+Library of code snippets coming soon!
+
+(fancy contributing?)
+
+# An Intro to Process Analytics with BupaR - and why it can help your DES project!
+
+[bupaR](https://bupaverse.github.io/docs/visualize.html) is an R library for process mining - but we won't let that stop us!
+
+With our event logs + some handy code snippets, generating some process mapping outputs becomes possible!
+
+## A Sample bupaR visual
+
+![](assets/2025-04-28-23-19-03.png)
+
+## R and Python??
+
+There are a few different ways we could get our Python event logs to work with bupaR:
+
+:::{.incremental}
+
+1. the reticulate package (which runs Python from R) - though due to the complexity of our code, this is likely to run into issues
+
+2. the r2py package (which runs R from Python) - as we only want a little bit of R in a primarily Python project, this might be a better option
+
+3. Quarto’s features for passings objects like dataframes between R and Python cells
+
+4. exporting our event log as a csv, importing this into R, and saving the resulting bupaR visuals
+    - the visuals we export can then be imported back into Streamlit apps or Quarto reports
+
+:::
+
+## bupaRs Outputs - counts of activities
+
+![](assets/2025-04-28-23-20-12.png)
+
+## bupaRs Outputs - percentages of activities
+
+![](assets/2025-04-28-23-32-20.png)
+
+## bupaRs Outputs - performance maps
+
+You can choose between mean stage time, max, min, etc.
+
+![](assets/2025-04-28-23-20-58.png)
+
+## bupaRs Outputs - idle time
+
+![](assets/2025-04-28-23-30-01.png)
+
+## bupaRs Outputs - Animations
+
+![](assets/firefox_fYeFzNNcP4.gif)
+
+## bupaR animations vs vidigi animations
+
+![](assets/firefox_zAOdt8MuFn.gif)
+
+## Find Out More
+
+Find some code to help you do this with your own simulation logs: [https://des.hsma.co.uk/process_logs_with_bupar.html](https://des.hsma.co.uk/process_logs_with_bupar.html)
+
+Explore other visuals in their documentation: [https://bupaverse.github.io/docs/visualize.html](https://bupaverse.github.io/docs/visualize.html)
+
+# Verification and Validation of DES Models
+
+Chapter coming soon...
+
+Verification = did we build it right (to match our conceptual model, and without bugs?)
+
+Validation = does it actually match the real world well enough to be useful?
+
+## A quick overview of verification and validation
+
+:::: {.columns}
+::: {.column width="50%" .incremental}
+### Verification
+- Code review completed
+- Unit tests for key functions
+- Manual event trace performed
+- Consistent time units confirmed
+- Queue and resource handling checked
+- Boundary/extreme cases tested
+- Randomness reproducibility checked
+:::
+
+::: {.column width="50%" .incremental}
+### Validation
+- Input data compared to real-world
+- Output results compared to real-world data
+- Face validity confirmed with experts
+- Sensitivity tests performed
+- Behavior under extreme scenarios
+- Long-term system stability checked
+:::
+::::
+
+*Assumptions documented and justified*
+
+# New Streamlit Features
+
+## Streamlit 1.44 adds more theming options
+
+![](assets/2025-04-07-16-50-40.png)
+
+[Version 1.44 Release Notes](https://docs.streamlit.io/develop/quick-reference/release-notes/2025#version-1440)
+
+## What can you change now?
+
+A lot more than before!
+
+![](assets/2025-04-28-21-23-57.png)
+
+[](https://docs.streamlit.io/develop/api-reference/configuration/config.toml#theme)
+
+## Custom Fonts
+
+Custom fonts appear to be supported via downloaded font files
+
+![](assets/2025-04-28-21-24-49.png)
+
+## Sidebar Theme
+
+The sidebar theme is fully customizable too.
+
+![](assets/2025-04-28-21-25-28.png)
+
+[](https://docs.streamlit.io/develop/api-reference/configuration/config.toml#sidebar-theme)
 
 
 # Work In Progress - an alternative approach to boundary optimization
@@ -231,6 +524,8 @@ This randomness ensures we don't end up with every player owning the same number
 
 :::
 
+## Building a single solution
+
 ![](assets/2025-04-28-21-41-27.png)
 
 
@@ -241,6 +536,8 @@ We can then generate **multiple** allocations, which will all (probably) differ.
 We can then **score** each solution on a metric - here, we're trying to minimize the difference in received calls across each region, so we work out the average across all regions and then work out the **absolute** difference.
 
 The closer the resulting value is to zero, the better the solution is.
+
+## Assessing the solutions (contd.)
 
 ![](assets/2025-04-28-21-43-49.png)
 
@@ -291,33 +588,3 @@ And - in theory - we'd keep going for a set number of generations or a defined a
 - Make it into a library?
 - Find people who might have a problem we can test it out on!
 :::
-
-# New Streamlit Features
-
-## Streamlit 1.44 adds more theming options
-
-![](assets/2025-04-07-16-50-40.png)
-
-[Version 1.44 Release Notes](https://docs.streamlit.io/develop/quick-reference/release-notes/2025#version-1440)
-
-## What can you change now?
-
-A lot more than before!
-
-![](assets/2025-04-28-21-23-57.png)
-
-[](https://docs.streamlit.io/develop/api-reference/configuration/config.toml#theme)
-
-## Custom Fonts
-
-Custom fonts appear to be supported via downloaded font files
-
-![](assets/2025-04-28-21-24-49.png)
-
-## Sidebar Theme
-
-The sidebar theme is fully customizable too.
-
-![](assets/2025-04-28-21-25-28.png)
-
-[](https://docs.streamlit.io/develop/api-reference/configuration/config.toml#sidebar-theme)
