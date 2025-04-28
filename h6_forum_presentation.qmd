@@ -1,5 +1,5 @@
 ---
-title: "HSMA 6 April 2025 Project Forum - Tips and Tricks"
+title: "HSMA 6 April 2025 Project Forum - Tips, Tricks and Updates"
 author:
     name: Dr Dan Chalk, Sammi Rosser
     affiliation: Health Service Modelling Associates Programme
@@ -22,39 +22,155 @@ format:
 
 ---
 
-# Survey - Phase 2 so Far
+# Reminder - Bookable Slots
 
+Don't forget that you can book time to see me.
+
+Slots are available at
+
+- 1:00, 1:30 and 2:00 every Tuesday
+- 11:30, 12:00 and 12:30 every Wedneday
+
+Slots are currently available up until the second week of June.
+
+Pop me a message if you can't make those times and we can work something out.
+
+# Useful Tools - Notebook LM
+
+## What is NotebookLM?
+
+Notebook LM is a Google product that allows you to pass in specfic sources that will be used by a generative AI model.
+
+You can feed it a range of sources, including google slides, Youtube vdeos, and webpages.
+
+
+## Why might NotebookLM be useful to you?
+
+Because it can be trained on specific sources, you can use it to remind yourself of the HSMA way of doing things.
+
+![](assets/2025-04-28-20-43-19.png)
+
+
+## A note about code
+
+Notebook LM has the really nice feature of actually referring back to the source it's used
+
+![](assets/2025-04-28-21-05-55.png)
+
+## Other Features
+
+The 'deep dive' feature is a way to get a good summary of complex information like scientific papers.
+
+![](assets/2025-04-28-21-04-38.png)
+
+## Things to note
+
+- Don't put anything private/sensitive in there!
+
+- You can't share your notebook if you don't have a paid Google AI plan (which is a shame if you're working in a team)
+
+
+
+# Automated Documentation Generation with Generative AI
+
+## The Tool
+
+This repository contains a script to automatically generate documentation from a codebase.
+
+[https://github.com/The-Pocket/PocketFlow-Tutorial-Codebase-Knowledge](https://github.com/The-Pocket/PocketFlow-Tutorial-Codebase-Knowledge]
+
+It's designed to write beginner-friendly documentation with loads of analogies and clear breakdowns of what is going on.
+
+## Why is this useful?
+
+Documentation is the thing no-one wants to do...
+
+And it always goes out of date!
+
+In addition, if you're trying to work with someone else's code, it can be really hard to get your head around how everything is done.
+
+## Example page
+
+![](assets/2025-04-28-20-56-31.png)
+
+## How does it do this?
+
+The framework
+
+- reads all of the files in the GitHub repository (or you can tell it to focus on only certain files or file types)
+- passes this to your chosen LLM, which decides how best to split them up into chapters
+- passes the chapter details to the LLM, which then writes several chapters in markdown format
+
+(I've then been converting the output into Quarto for easy integration with existing documentation)
+
+## Code Examples
+
+It generates code examples...
+
+![](assets/2025-04-28-20-51-48.png)
+
+## Diagrams
+
+And diagrams...
+
+![](assets/2025-04-28-20-52-57.png)
+
+## Prompt Editing
+
+Because of the way this code is designed, you can modify the prompt that gets fed in.
+
+It just lives in text in the `nodes.py` file.
+
+![](assets/2025-04-28-20-57-29.png)
+
+## Custom Documentation
+
+So you can ask it to make the documentation more or less beginner friendly, or add very specific requests.
+
+![](assets/2025-04-28-20-48-33.png)
+
+
+## Considerations
+
+Anything you feed into this *may* be fair game for model training.
+
+And you certainly don't want to feed in anything that needs to remain private!
+
+But if your repository is already open-source, then you may wish to consider it.
+
+## Cost
+
+Google's most advanced model (`gemini-2.5-pro-exp-03-25`) is currently **free** for roughly 25 requests a day.
+
+For me, that was enough to generate two sets of documentation per day before hitting the limit.
+
+
+## Further Info
+
+I'll put together a quick guide on the 'how' in the next few days, but if you're keen to try it out sooner, have a go at following the instructions in the repository readme (and message me if you get stuck).
+
+![](https://github.com/The-Pocket/PocketFlow-Tutorial-Codebase-Knowledge?tab=readme-ov-file#-getting-started)
 
 # Working on your DES Projects
 
-
 ## Getting distributions from real data
 
+
+## Event Logging
 
 
 ## An Intro to Process Analytics with BupaR - and why it can help your DES project!
 
 
-
-## Verification and Validation of DES Models
-
+## A Little on Verification and Validation of DES Models
 
 
-
-
-# A sneak peak - an alternative approach to boundary optimization
-
-
-
-# Notebook LM
-
-## Why might NotebookLM be useful to you?
+# Work In Progress - an alternative approach to boundary optimization
 
 
 
 
-
-# Cool Finds - New Streamlit Features
+# New Streamlit Features
 
 ## Streamlit 1.44
 
