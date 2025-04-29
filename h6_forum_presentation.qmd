@@ -56,9 +56,22 @@ You can feed it a range of sources, including
 
 ## Why might NotebookLM be useful to you?
 
+:::: {.columns}
+
+::: {.column width='20%'}
+
 Because it can be trained on specific sources, you can use it to remind yourself of the HSMA way of doing things.
 
-![](assets/2025-04-28-20-43-19.png)
+:::
+
+::: {.column width='80%'}
+
+![](assets/2025-04-29-07-22-28.png)
+
+
+:::
+
+::::
 
 
 ## A note about code
@@ -89,9 +102,11 @@ But in code, that means you get the sources appearing in `[]` in a way that woul
 
 The 'deep dive' feature is a way to get a good summary of complex information like scientific papers.
 
-It generates a podcast!
+It generates a podcast-like conversation!
 
 ![](assets/2025-04-28-21-04-38.png)
+
+It can also generate other formats like an FAQ document.
 
 ## Things to note
 
@@ -187,19 +202,20 @@ So you can ask it to make the documentation more or less beginner friendly, or a
 
 ![](assets/2025-04-28-20-48-33.png)
 
-## Considerations
+## Things to note
 
-Anything you feed into this *may* be fair game for model training.
-
-And you certainly don't want to feed in anything that needs to remain private!
-
-But if your repository is already open-source, then you may wish to consider it.
+- Anything you feed into this *may* be fair game for model training.
+    - And you certainly don't want to feed in anything that needs to remain private!
+    - But if your repository is already open-source, then you may wish to consider it.
+- It will probably do better with a repository where you have included comments and [docstrings](https://hsma-programme.github.io/h6_march_2025_forum_presentation/#/making-your-code-super-readable-with-docstrings)
 
 ## Cost
 
 Google's most advanced model (`gemini-2.5-pro-exp-03-25`) is currently **free** for roughly 25 requests a day.
 
 For me, that was enough to generate two sets of documentation per day before hitting the limit.
+
+If there isn't a billing account linked to your Google account, you shouldn't be able to exceed - but check and set up spending limits first!
 
 ## Further Info
 
@@ -212,17 +228,48 @@ And have a read of a sample generated here: [https://sammirosser.com/vidigi_auto
 
 # DES Projects - Getting distributions from real data
 
-There's a new chapter in the DES book on getting distributions from real data!
+There's a [new chapter in the DES book](https://des.hsma.co.uk/getting_the_distribution_from_real_world_data.html) on getting distributions from real data!
 
 ![](assets/2025-04-28-22-41-25.png)
 
+## Recap - distributions
+
+![](assets/2025-04-29-07-51-20.png)
+
+(And many more - scipy provides functions for over 80...)
+
+## Recap - distribution (contd.)
+
+:::: {.columns}
+
+::: {.column width='50%'}
+
+![](assets/2025-04-29-07-51-49.png)
+
+Source: By Skbkekas - Own work, CC BY 3.0, https://commons.wikimedia.org/w/index.php?curid=9447142
+
+
+:::
+
+::: {.column width='50%'}
+
+![](assets/2025-04-29-07-55-00.png)
+
+Source: By Inductiveload - Own work (Original text: self-made, Mathematica, Inkscape), Public Domain, https://commons.wikimedia.org/w/index.php?curid=3817954
+
+:::
+
+::::
+
+How to work out what best represents our data?
+
 ## The fitter package
 
-This covers using the `fitter` package.
+We'll use the `fitter` package.
 
 Let's assume we start with a dataframe of historical activity times.
 
-![](assets/2025-04-28-22-43-19.png)
+![](assets/2025-04-29-07-35-39.png)
 
 ## Fitting
 
@@ -261,6 +308,23 @@ nurse_appt_duration_fit
 
 And this can be used to then pass into your model.
 
+## Using this to initialise a distribution
+
+Remembering that our output looked like this: ![](assets/2025-04-28-23-54-39.png)
+
+```{python}
+from scipy.stats import gamma
+
+def get_nurse_appt_duration():
+    return gamma.rvs( # stands for random varables
+        a=nurse_appt_duration_fit['gamma']["a"], # accessing parts of the dictionary
+        loc=nurse_appt_duration_fit['gamma']["loc"],
+        scale=nurse_appt_duration_fit['gamma']["scale"]
+        )
+```
+
+Running `get_nurse_appt_duration()` then returns one suitable time from that distribution.
+
 # DES - Event Logging
 
 There is also a new chapter on [event logging](https://des.hsma.co.uk/event_logging.html).
@@ -287,8 +351,6 @@ The resulting file will be an ‘event log’.
 
 ## Key Parts of the Event Log
 
-We have several mandatory columns:
-
 :::{.incremental}
 
 **entity_id:** a unique identifider to allow us to follow a given entity through their journey
@@ -314,6 +376,46 @@ We have several mandatory columns:
 
 :::
 
+## Building the event log
+
+We first add an empty list to our model to store the logs...
+
+```{python}
+class Model():
+
+  def __init__(self, run_number):
+      # Create a SimPy environment in which everything will live
+      self.env = simpy.Environment()
+
+      # Add an empty list to store our event logs in
+      self.event_log = []
+
+      # rest of model code...
+
+```
+
+## Adding entries
+
+Then, each time we want to record something about the patent, we add in something like this:
+
+```{python}
+self.event_log.append(
+        {'patient': entity_identifier,
+            'pathway': 'My_Pathway_Name',
+            'event_type': 'arrival_departure', # or 'queue', 'resource_use', or 'resource_use_end'
+            'event': 'arrival', # or 'depart', or for 'queue' and 'resource_use' or 'resource_use_end' you can determine your own event name
+            'time': self.env.now}
+    )
+```
+
+(You could wrap that in a helper function if you preferred!)
+
+## Turning this into a full log
+
+In our ['run' method](https://des.hsma.co.uk/event_logging.html#the-run-method) and the ['Trial' class](https://des.hsma.co.uk/event_logging.html#the-run-method), you make a few more changes to turn these dictionaries into a final output and save them.
+
+We can then output this - either as a value returned when the model is run, or as a csv (or both).
+
 ## Resource IDs
 
 :::{.incremental}
@@ -334,7 +436,13 @@ Once you have this log, you can use it for a wide range of visuals
 - Animated visuals with the vidigi package
 - Various box plots, scatterplots and bar charts to aid with interpretation and validation of your model
 
+## Example Visuals
 
+![](assets/2025-04-29-08-00-09.png)
+
+## Example Visuals - Real-world Comparisons
+
+![](assets/2025-04-29-08-07-22.png)
 
 ## Considerations
 
@@ -424,11 +532,11 @@ Validation = does it actually match the real world well enough to be useful?
 ### Verification
 - Code review completed
 - Unit tests for key functions
-- Manual event trace performed
+- Manual event trace performed (following sample patients through)
 - Consistent time units confirmed
 - Queue and resource handling checked
 - Boundary/extreme cases tested
-- Randomness reproducibility checked
+- Randomness + reproducibility checked
 :::
 
 ::: {.column width="50%" .incremental}
@@ -437,12 +545,62 @@ Validation = does it actually match the real world well enough to be useful?
 - Output results compared to real-world data
 - Face validity confirmed with experts
 - Sensitivity tests performed
-- Behavior under extreme scenarios
+- Behavior under extreme scenarios checked
 - Long-term system stability checked
 :::
 ::::
 
-*Assumptions documented and justified*
+*Assumptions and simplifications documented and justified*
+
+## Statistical testing
+
+There are a range of tests you could consider running to compare your simulation outputs with your historical data.
+
+| Test                     | Type of Data       | Compares              | Purpose                                                        | Use Case in Simulation Validation                                |
+|--------------------------|--------------------|------------------------|----------------------------------------------------------------|------------------------------------------------------------------|
+| **t-test**               | Continuous          | Means between groups   | Assess if the average values differ significantly              | Compare average response times, service durations, etc.          |
+| **Chi-squared test**     | Categorical         | Frequency distributions| Assess if category frequencies match expected distribution     | Compare call types, dispatch priority levels, station allocations|
+| **Kolmogorov–Smirnov (KS) 2-sample test**     | Continuous          | Entire distributions   | Assess if two samples come from the same distribution           | Compare distributions of interarrival times, on-scene durations  |
+
+## Example Code
+
+```{python}
+# Pull out daily number of calls across simulation and reality
+sim_calls = np.array(average_monthly_calls['daily_calls'])  # simulated data
+real_calls = np.array(historical_monthly_calls['daily_calls'])  # real data
+
+# Welch’s t-test (does not assume equal variances)
+t_stat, p_value = stats.ttest_ind(sim_calls, real_calls, equal_var=False)
+
+# Thresholds
+p_thresh = 0.05
+```
+
+## Example code (contd.)
+
+- Statistical significance ≠ practical significance
+  - may want to consider an additional metric to determine whether difference likely matters in reality
+
+```{python}
+# Mean difference and effect size
+mean_diff = np.mean(sim_calls) - np.mean(real_calls)
+pooled_std = np.sqrt((np.std(sim_calls, ddof=1) ** 2 + np.std(real_calls, ddof=1) ** 2) / 2)
+cohen_d = mean_diff / pooled_std
+
+# Thresholds
+effect_size_fail_thresh = 0.5
+
+# Will only fail if significance threshold is met and cohen's D is sufficiently large
+if p_value < p_thresh and abs(cohen_d) > effect_size_fail_thresh:
+    pytest.fail(f"""[FAIL - COMPARISON WITH REALITY]
+    **Mean Daily Calls** significantly different between simulation and reality.
+    p={p_value:.4f}.
+    Cohen's d={cohen_d:.2f}.
+    Sim mean: {np.mean(sim_calls):.2f}
+    Real mean: {np.mean(real_calls):.2f}.
+    Mean diff: {mean_diff:.2f}.""")
+```
+
 
 # New Streamlit Features
 
@@ -499,15 +657,31 @@ So how would we build up a new candidate combination?
 
 ## How do we do this?
 
-LSOAs (or any other geography) have a concept of neighbours (something sharing a border)
+:::: {.columns}
 
-![](assets/cell-15-output-1-1.png)
+::: {.column width='50%'}
+
+LSOAs (or any other geography) have a concept of neighbours (something sharing a border)
 
 Here, we start with a territory that's pretty central in the existing territories
 
 - we could choose a random cell from the existing territory
 - or completely at random
 - or we could have a different number of players to our existing territory
+
+
+:::
+
+
+::: {.column width='50%'}
+
+![](assets/cell-15-output-1-1.png)
+
+
+:::
+
+::::
+
 
 ## The game
 
