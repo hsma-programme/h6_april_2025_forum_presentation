@@ -487,23 +487,59 @@ There are a few different ways we could get our Python event logs to work with b
 
 ## bupaRs Outputs - counts of activities
 
+```{r}
+library(bupaverse)
+
+activity_log %>%
+    process_map(frequency("absolute"))
+```
+
 ![](assets/2025-04-28-23-20-12.png)
 
 ## bupaRs Outputs - percentages of activities
+
+```{r}
+activity_log %>%
+    process_map(frequency("relative"))
+```
 
 ![](assets/2025-04-28-23-32-20.png)
 
 ## bupaRs Outputs - performance maps
 
-You can choose between mean stage time, max, min, etc.
+```{r}
+activity_log %>%
+    process_map(performance())
+```
 
 ![](assets/2025-04-28-23-20-58.png)
 
+You can choose between mean stage time, max, min, etc.
+
+```{r}
+activity_log %>%
+    process_map(performance(FUN = max))
+```
+
+
 ## bupaRs Outputs - idle time
+
+```{r}
+activity_log %>%
+    idle_time("resource", units = "mins") %>%
+    plot()
+```
 
 ![](assets/2025-04-28-23-30-01.png)
 
 ## bupaRs Outputs - Animations
+
+```{r}
+library(processanimateR)
+
+activity_log %>%
+    animate_process()
+```
 
 ![](assets/firefox_fYeFzNNcP4.gif)
 
@@ -515,11 +551,15 @@ You can choose between mean stage time, max, min, etc.
 
 Find some code to help you do this with your own simulation logs: [https://des.hsma.co.uk/process_logs_with_bupar.html](https://des.hsma.co.uk/process_logs_with_bupar.html)
 
+In that section you will find
+- a [function for converting your logs to the expected format and exporting that as a csv (from in Python)](https://des.hsma.co.uk/process_logs_with_bupar.html#generating-a-flexible-python-function-for-moving-from-event-logs-to-process-logs)
+- [a function for creating the `activity_log` object in R, give the path to your csv](https://des.hsma.co.uk/process_logs_with_bupar.html#generating-a-flexible-r-function-for-generating-a-bupar-activity-log).
+
 Explore other visuals in their documentation: [https://bupaverse.github.io/docs/visualize.html](https://bupaverse.github.io/docs/visualize.html)
 
 # Verification and Validation of DES Models
 
-Chapter coming soon...
+Book chapter coming soon...
 
 Verification = did we build it right (to match our conceptual model, and without bugs?)
 
