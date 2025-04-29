@@ -424,7 +424,7 @@ We can then output this - either as a value returned when the model is run, or a
 - This allows you to track which resource was being used by a particular entity
 - So if you have five nurses, you know which one they saw - allowing you to look in more depth at resource use, and being valuable for resource utilisation.
 - This is a bit more complex due to not being natively supported by simpy.
-  - But it's covered in the book (with some custom helper functions provided): [](https://des.hsma.co.uk/event_logging.html#logging-resource-ids)
+  - But it's covered in the book (with some custom helper functions provided): [https://des.hsma.co.uk/event_logging.html#logging-resource-ids](https://des.hsma.co.uk/event_logging.html#logging-resource-ids)
 
 :::
 
@@ -552,6 +552,7 @@ activity_log %>%
 Find some code to help you do this with your own simulation logs: [https://des.hsma.co.uk/process_logs_with_bupar.html](https://des.hsma.co.uk/process_logs_with_bupar.html)
 
 In that section you will find
+
 - a [function for converting your logs to the expected format and exporting that as a csv (from in Python)](https://des.hsma.co.uk/process_logs_with_bupar.html#generating-a-flexible-python-function-for-moving-from-event-logs-to-process-logs)
 - [a function for creating the `activity_log` object in R, give the path to your csv](https://des.hsma.co.uk/process_logs_with_bupar.html#generating-a-flexible-r-function-for-generating-a-bupar-activity-log).
 
@@ -565,7 +566,7 @@ Verification = did we build it right (to match our conceptual model, and without
 
 Validation = does it actually match the real world well enough to be useful?
 
-## A quick overview of verification and validation
+## A quick overview of verification and validation {.smaller}
 
 :::: {.columns}
 ::: {.column width="50%" .incremental}
@@ -592,7 +593,7 @@ Validation = does it actually match the real world well enough to be useful?
 
 *Assumptions and simplifications documented and justified*
 
-## Statistical testing
+## Statistical testing {.smaller}
 
 There are a range of tests you could consider running to compare your simulation outputs with your historical data.
 
@@ -607,6 +608,9 @@ There are a range of tests you could consider running to compare your simulation
 ```{python}
 # Pull out daily number of calls across simulation and reality
 sim_calls = np.array(average_monthly_calls['daily_calls'])  # simulated data
+
+# basically a list like [4, 6, 12, 5, 7, 4, 4, 19, ...]
+
 real_calls = np.array(historical_monthly_calls['daily_calls'])  # real data
 
 # Welch’s t-test (does not assume equal variances)
@@ -734,22 +738,42 @@ On each step, it
   - if no-one already owns the neighbour, it takes ownership
   - if someone does already own it, it takes no territory on that turn
 
+:::
+
+:::{.incremental}
 This randomness ensures we don't end up with every player owning the same number of units of territory each time.
 
 :::
 
 ## Building a single solution
 
+:::: {.columns}
+
+::: {.column width='50%'}
+
+![](assets/2025-04-28-21-30-49.png)
+
+:::
+
+::: {.column width='50%'}
+
 ![](assets/2025-04-28-21-41-27.png)
+
+
+:::
+
+::::
+
 
 
 ## Assessing the solutions
 
-We can then generate **multiple** allocations, which will all (probably) differ.
+- We can then generate **multiple** allocations, which will all (probably) differ.
 
-We can then **score** each solution on a metric - here, we're trying to minimize the difference in received calls across each region, so we work out the average across all regions and then work out the **absolute** difference.
-
-The closer the resulting value is to zero, the better the solution is.
+- We can then **score** each solution on a metric
+  - here, we're trying to minimize the difference in received calls across each region, so we work out the average across all regions and then work out the **absolute** difference.
+      - The closer the resulting value is to zero, the better the solution is.
+  - but you might use a different metric!
 
 ## Assessing the solutions (contd.)
 
@@ -757,7 +781,7 @@ The closer the resulting value is to zero, the better the solution is.
 
 ## Making the solutions better
 
-Rather than just randomly generating thousands of candidate solutions, we may move to a better solution faster by varying the best random solutions.
+Rather than just randomly generating thousands of candidate solutions, we may move to a better solution faster by **varying** the **best** random solutions.
 
 With some more boundary logic, we can create new possible solutions that are a variation on our best solution from the previous step.
 
